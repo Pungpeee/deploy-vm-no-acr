@@ -21,7 +21,7 @@ jobs:
       - name: Deploy execute command ssh to remote server
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
-        uses: appleboy/ssh-action@master
+        uses: appleboy/drone-ssh
         with:
          host: ${{ secrets.HOST }}
          username: ${{ secrets.USERNAME }}
