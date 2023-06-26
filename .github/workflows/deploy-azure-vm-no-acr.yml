@@ -1,0 +1,51 @@
+name: Azure VM Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # - name: Deploy to Azure VM
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build Docker image
+        run: docker build -t my-image:${{ github.sha }} .
+
+      - name: Tag Docker image
+        run: docker tag my-image:${{ github.sha }} my-image:latest
+
+      - name: Save Docker image as tar archive
+        run: docker save -o my-image.tar my-image:${{ github.sha }}
+
+      - name: Copy Docker image to Azure VM
+        run: |
+          scp my-image.tar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/myApp
+
+      - name: Load Docker image on Azure VM
+        run: |
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i /myApp/my-image.tar'
+
+      - name: Copy files to Azure VM
+        run: |
+          scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/myApp
+
+      - name: Deploy execute command ssh to remote server
+        env:
+           IMAGE_NAME: my-image:${{ github.sha }}
+        uses: appleboy/ssh-action@master
+        with:
+         host: ${{ secrets.HOST }}
+         username: ${{ secrets.USERNAME }}
+         password: ${{ secrets.PASSWORD }}
+         script: |
+              docker ps -a
