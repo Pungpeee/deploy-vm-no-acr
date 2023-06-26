@@ -37,7 +37,7 @@ jobs:
         run: docker save -o my-image.tar my-image:${{ github.sha }}
 
       - name: Copy Docker image to Azure VM
-        uses: appleboy/scp-action@v0.2.0
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
