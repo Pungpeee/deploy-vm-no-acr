@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,6 +17,15 @@ jobs:
       #   uses: azure/login@v1
       #   with:
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy execute command ssh to remote server
+        env:
+           IMAGE_NAME: my-image:${{ github.sha }}
+        uses: appleboy/ssh-action@master
+        with:
+         host: ${{ secrets.HOST }}
+         username: ${{ secrets.USERNAME }}
+         password: ${{ secrets.PASSWORD }}
 
       - name: Build Docker image
         run: docker build -t my-image:${{ github.sha }} .
@@ -34,6 +43,11 @@ jobs:
       - name: Load Docker image on Azure VM
         run: |
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i /myApp/my-image.tar'
+
+  deploy:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
 
       - name: Copy files to Azure VM
         run: |
