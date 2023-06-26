@@ -37,8 +37,13 @@ jobs:
         run: docker save -o my-image.tar my-image:${{ github.sha }}
 
       - name: Copy Docker image to Azure VM
-        run: |
-          scp my-image.tar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/myApp
+        uses: appleboy/scp-action@v0.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: my-image.tar
+          target: /myApp/my-image.tar
 
       - name: Load Docker image on Azure VM
         run: |
