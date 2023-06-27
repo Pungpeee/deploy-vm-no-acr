@@ -18,14 +18,13 @@ jobs:
       #   with:
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build Docker image
-        run: docker build -t my-image:${{ github.sha }} .
-
-      - name: Tag Docker image
-        run: docker tag my-image:${{ github.sha }} my-image:latest
-
-      - name: Save Docker image as tar archive
-        run: docker save -o my-image.tar my-image:${{ github.sha }}
+     - name: Build image and push Dockerfile
+       uses: docker/build-push-action@v3
+       with:
+         file: ./Dockerfile
+         context: .
+         push: true
+         tags: my-image:${{ github.sha }}
 
       - name: Copy Docker image to Azure VM
         uses: appleboy/scp-action@v0.1.4
@@ -73,7 +72,7 @@ jobs:
          username: ${{ secrets.USERNAME }}
          password: ${{ secrets.PASSWORD }}
          script: |
-              docker build -f ./Dockerfile -t my-image:${{ github.sha }} .
+              docker build -t my-image:${{ github.sha }} .
               docker run -d -p 80:8000 my-image:${{ github.sha }}
               docker images 
               docker ps -a
