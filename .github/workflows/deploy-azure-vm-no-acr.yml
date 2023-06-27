@@ -17,6 +17,15 @@ jobs:
       #   uses: azure/login@v1
       #   with:
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Publish file to Azure VM
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          source: .
+          target: ./myApp
 
       - name: Build Docker image
         run: docker build -t my-image:${{ github.sha }} .
@@ -38,7 +47,6 @@ jobs:
           source: my-image.tar
           target: ./myApp/my-image.tar
 
-
       - name: Deploy execute command ssh to remote server & Load Docker image on Azure VM
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
@@ -54,16 +62,6 @@ jobs:
       runs-on: ubuntu-latest
       steps:
 
-      - name: Publish file to Azure VM
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          source: .
-          target: ./myApp
-
       - name: Deploy execute command ssh to remote server
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
@@ -73,7 +71,6 @@ jobs:
          username: ${{ secrets.USERNAME }}
          password: ${{ secrets.PASSWORD }}
          script: |
-              docker login
-              docker pull my-image:${{ github.sha }} 
+              docker build -t my-image:${{ github.sha }} .
               docker run -d my-image:${{ github.sha }}
               docker images
