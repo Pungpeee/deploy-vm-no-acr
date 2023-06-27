@@ -18,9 +18,9 @@ jobs:
       #   with:
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-     - name: Build image and push Dockerfile
-       uses: docker/build-push-action@v3
-       with:
+      - name: Build image and push Dockerfile
+        uses: docker/build-push-action@v3
+        with:
          file: ./Dockerfile
          context: .
          push: true
