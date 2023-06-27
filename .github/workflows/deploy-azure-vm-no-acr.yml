@@ -12,11 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      # - name: Deploy to Azure VM
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Publish file to Azure VM
         uses: appleboy/scp-action@v0.1.4
@@ -27,36 +22,36 @@ jobs:
           source: .
           target: ./myApp
 
-      - name: Build Docker image
-        run: docker build -t my-image:${{ github.sha }} .
+      # - name: Build Docker image
+      #   run: docker build -t my-image:${{ github.sha }} .
 
-      - name: Tag Docker image
-        run: docker tag my-image:${{ github.sha }} my-image:latest
+      # - name: Tag Docker image
+      #   run: docker tag my-image:${{ github.sha }} my-image:latest
 
-      - name: Save Docker image as tar archive
-        run: docker save -o my-image.tar my-image:${{ github.sha }}
+      # - name: Save Docker image as tar archive
+      #   run: docker save -o my-image.tar my-image:${{ github.sha }}
 
-      - name: Copy Docker image to Azure VM
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          command_timeout: 2m
-          source: my-image.tar
-          target: ./myApp/my-image.tar
+      # - name: Copy Docker image to Azure VM
+      #   uses: appleboy/scp-action@v0.1.4
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     password: ${{ secrets.PASSWORD }}
+      #     port: ${{ secrets.PORT }}
+      #     command_timeout: 2m
+      #     source: my-image.tar
+      #     target: ./myApp/my-image.tar
 
-      - name: Deploy execute command ssh to remote server & Load Docker image on Azure VM
-        env:
-           IMAGE_NAME: my-image:${{ github.sha }}
-        uses: appleboy/ssh-action@master
-        with:
-         host: ${{ secrets.HOST }}
-         username: ${{ secrets.USERNAME }}
-         password: ${{ secrets.PASSWORD }}
-         run: |
-          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i ./myApp/my-image.tar'
+      # - name: Deploy execute command ssh to remote server & Load Docker image on Azure VM
+      #   env:
+      #      IMAGE_NAME: my-image:${{ github.sha }}
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #    host: ${{ secrets.HOST }}
+      #    username: ${{ secrets.USERNAME }}
+      #    password: ${{ secrets.PASSWORD }}
+      #    run: |
+      #     ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i ./myApp/my-image.tar'
   deploy:
       needs: build
       runs-on: ubuntu-latest
@@ -71,6 +66,6 @@ jobs:
          username: ${{ secrets.USERNAME }}
          password: ${{ secrets.PASSWORD }}
          script: |
-              docker build -t my-image:${{ github.sha }} .
-              docker run -d my-image:${{ github.sha }}
-              docker images
+              docker-compose down
+              docker-compose up -d --build
+              docker ps -a
