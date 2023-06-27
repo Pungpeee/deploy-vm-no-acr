@@ -54,15 +54,15 @@ jobs:
       runs-on: ubuntu-latest
       steps:
 
-      - name: Copy Docker image to Azure VM
-        uses: appleboy/scp-action@v0.1.4
+      - name: Publish file to Azure VM
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          source: ./
-          target: ./myApp/
+          source: .
+          target: ./myApp
 
       - name: Deploy execute command ssh to remote server
         env:
@@ -73,6 +73,7 @@ jobs:
          username: ${{ secrets.USERNAME }}
          password: ${{ secrets.PASSWORD }}
          script: |
-              docker build -t my-image:${{ github.sha }} .
-              docker run -f ./Dockerfile -d -p 80:8000 my-image:${{ github.sha }}
+              docker build -f ./Dockerfile -t my-image:${{ github.sha }} .
+              docker run -d -p 80:8000 my-image:${{ github.sha }}
+              docker images 
               docker ps -a
