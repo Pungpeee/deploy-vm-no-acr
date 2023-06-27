@@ -24,7 +24,7 @@ jobs:
 
 
       - name: Tag Docker image
-        run: docker tag my-image:${{ github.sha }} my-image:latest
+        run: docker tag my-image:${{ github.sha }}
 
       - name: Save Docker image as tar archive
         run: docker save -o my-image.tar my-image:${{ github.sha }}
