@@ -1,3 +1,4 @@
+
 name: Azure VM Deployment
 
 on:
@@ -11,9 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v1
-      - name: Run a workflow file
-        uses: ./.github/actions/deploy-vm-no-acr
+        uses: actions/checkout@v2
 
       # - name: Deploy to Azure VM
       #   uses: azure/login@v1
@@ -23,7 +22,7 @@ jobs:
       - name: Deploy execute command ssh to remote server
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
-        uses: appleboy/drone-ssh
+        uses: appleboy/ssh-action@master
         with:
          host: ${{ secrets.HOST }}
          username: ${{ secrets.USERNAME }}
@@ -38,9 +37,8 @@ jobs:
       - name: Save Docker image as tar archive
         run: docker save -o my-image.tar my-image:${{ github.sha }}
 
-
       - name: Copy Docker image to Azure VM
-        uses: ./.github/workflows/deploy-azure-vm-no-acr.yml
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -51,7 +49,6 @@ jobs:
       - name: Load Docker image on Azure VM
         run: |
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i /myApp/my-image.tar'
-
   deploy:
       needs: build
       runs-on: ubuntu-latest
@@ -60,7 +57,6 @@ jobs:
       - name: Copy files to Azure VM
         run: |
           scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/myApp
-
       - name: Deploy execute command ssh to remote server
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
