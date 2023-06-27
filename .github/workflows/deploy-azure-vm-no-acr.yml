@@ -18,15 +18,6 @@ jobs:
       #   uses: azure/login@v1
       #   with:
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: Deploy execute command ssh to remote server
-        env:
-           IMAGE_NAME: my-image:${{ github.sha }}
-        uses: appleboy/ssh-action@master
-        with:
-         host: ${{ secrets.HOST }}
-         username: ${{ secrets.USERNAME }}
-         password: ${{ secrets.PASSWORD }}
 
       - name: Build Docker image
         run: docker build -t my-image:${{ github.sha }} .
@@ -48,8 +39,16 @@ jobs:
           source: my-image.tar
           target: ./myApp/my-image.tar
 
-      - name: Load Docker image on Azure VM
-        run: |
+
+     - name: Deploy execute command ssh to remote server & Load Docker image on Azure VM
+        env:
+           IMAGE_NAME: my-image:${{ github.sha }}
+        uses: appleboy/ssh-action@master
+        with:
+         host: ${{ secrets.HOST }}
+         username: ${{ secrets.USERNAME }}
+         password: ${{ secrets.PASSWORD }}
+         run: |
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i ./myApp/my-image.tar'
   deploy:
       needs: build
