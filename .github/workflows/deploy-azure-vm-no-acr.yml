@@ -73,6 +73,7 @@ jobs:
          username: ${{ secrets.USERNAME }}
          password: ${{ secrets.PASSWORD }}
          script: |
+              docker login
               docker pull my-image:${{ github.sha }} 
               docker run -d my-image:${{ github.sha }}
               docker images
