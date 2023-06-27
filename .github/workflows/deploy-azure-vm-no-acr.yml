@@ -21,8 +21,8 @@ jobs:
       - name: Build image and push Dockerfile
         uses: docker/build-push-action@v3
         with:
-         file: ./Dockerfile
          context: .
+         file: ./Dockerfile
          push: true
          tags: my-image:${{ github.sha }}
 
