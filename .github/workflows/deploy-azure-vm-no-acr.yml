@@ -11,7 +11,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v1
+      - name: Run a workflow file
+        uses: ./.github/actions/deploy-vm-no-acr
 
       # - name: Deploy to Azure VM
       #   uses: azure/login@v1
@@ -36,8 +38,6 @@ jobs:
       - name: Save Docker image as tar archive
         run: docker save -o my-image.tar my-image:${{ github.sha }}
 
-      # - name: Run a workflow file
-      #   uses: ./.github/workflows/deploy-azure-vm-no-acr.yml
 
       - name: Copy Docker image to Azure VM
         uses: ./.github/workflows/deploy-azure-vm-no-acr.yml
