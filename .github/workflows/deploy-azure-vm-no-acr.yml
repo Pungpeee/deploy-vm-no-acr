@@ -44,12 +44,13 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
+          command_timeout: 2m
           source: my-image.tar
-          target: /myApp/my-image.tar
+          target: ./myApp/my-image.tar
 
       - name: Load Docker image on Azure VM
         run: |
-          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i /myApp/my-image.tar'
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i ./myApp/my-image.tar'
   deploy:
       needs: build
       runs-on: ubuntu-latest
@@ -57,7 +58,7 @@ jobs:
 
       - name: Copy files to Azure VM
         run: |
-          scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/myApp
+          scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:./myApp
       - name: Deploy execute command ssh to remote server
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
