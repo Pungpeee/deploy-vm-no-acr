@@ -17,6 +17,10 @@ jobs:
       #   uses: azure/login@v1
       #   with:
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: run repo token 
+        uses: actions/labeler@v4
+        with:
+          repo-token: ${{ secrets.TOKEN }}
 
       - name: Build image and push Dockerfile
         uses: docker/build-push-action@v3
