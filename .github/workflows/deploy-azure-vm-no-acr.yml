@@ -24,34 +24,30 @@ jobs:
          context: .
          file: ./Dockerfile
          push: true
-         tags: my-image:${{ github.sha }}
+         tags: my-image:latest
 
-      - name: Copy Docker image to Azure VM
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          command_timeout: 2m
-          source: my-image.tar
-          target: ./myApp/my-image.tar
+      # - name: Copy Docker image to Azure VM
+      #   uses: appleboy/scp-action@v0.1.4
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     password: ${{ secrets.PASSWORD }}
+      #     port: ${{ secrets.PORT }}
+      #     command_timeout: 2m
+      #     source: my-image.tar
+      #     target: ./myApp/my-image.tar
 
 
       - name: Deploy execute command ssh to remote server & Load Docker image on Azure VM
         env:
-           IMAGE_NAME: my-image:${{ github.sha }}
+           IMAGE_NAME: my-image:latest
         uses: appleboy/ssh-action@master
         with:
          host: ${{ secrets.HOST }}
          username: ${{ secrets.USERNAME }}
          password: ${{ secrets.PASSWORD }}
          run: |
-          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i ./myApp/my-image.tar'
-  deploy:
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i ./myApp/my-image:latest'
 
       - name: Publish file to Azure VM
         uses: appleboy/ssh-action@master
@@ -62,10 +58,14 @@ jobs:
           port: ${{ secrets.PORT }}
           source: .
           target: ./myApp
+  deploy:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
 
       - name: Deploy execute command ssh to remote server
         env:
-           IMAGE_NAME: my-image:${{ github.sha }}
+           IMAGE_NAME: my-image:latest
         uses: appleboy/ssh-action@master
         with:
          host: ${{ secrets.HOST }}
