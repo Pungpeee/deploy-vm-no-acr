@@ -1,4 +1,3 @@
-
 name: Azure VM Deployment
 
 on:
@@ -54,10 +53,6 @@ jobs:
       needs: build
       runs-on: ubuntu-latest
       steps:
-
-      - name: Copy files to Azure VM
-        run: |
-          scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:./myApp
       - name: Deploy execute command ssh to remote server
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
@@ -67,4 +62,9 @@ jobs:
          username: ${{ secrets.USERNAME }}
          password: ${{ secrets.PASSWORD }}
          script: |
+              scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:./myApp
               docker ps -a
+
+      # - name: Copy files to Azure VM
+      #   run: |
+      #     scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:./myApp
