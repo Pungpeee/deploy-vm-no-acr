@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: my-image:${{ github.sha }}
 
     steps:
       - name: Checkout code
@@ -23,14 +22,15 @@ jobs:
           source: .
           target: ./myApp
 
-      - name: Build Docker image
-        run: docker build -t my-image:${{ github.sha }} .
 
       - name: Tag Docker image
         run: docker tag my-image:${{ github.sha }} my-image:latest
 
       - name: Save Docker image as tar archive
         run: docker save -o my-image.tar my-image:${{ github.sha }}
+
+      - name: Load custom Docker image
+        run: docker load -i ./myApp/my-image.tar
 
       - name: Copy Docker image to Azure VM
         uses: appleboy/scp-action@v0.1.4
