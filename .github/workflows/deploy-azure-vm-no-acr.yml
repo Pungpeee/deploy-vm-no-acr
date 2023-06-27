@@ -39,7 +39,7 @@ jobs:
           target: ./myApp/my-image.tar
 
 
-     - name: Deploy execute command ssh to remote server & Load Docker image on Azure VM
+      - name: Deploy execute command ssh to remote server & Load Docker image on Azure VM
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
         uses: appleboy/ssh-action@master
@@ -64,7 +64,3 @@ jobs:
          script: |
               scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:./myApp
               docker ps -a
-
-      # - name: Copy files to Azure VM
-      #   run: |
-      #     scp -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:./myApp
