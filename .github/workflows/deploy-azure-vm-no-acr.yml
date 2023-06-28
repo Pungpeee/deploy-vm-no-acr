@@ -23,8 +23,8 @@ jobs:
           target: ./myApp
 
 
-      - name: Tag Docker image
-        run: docker tag my-image:${{ github.sha }}
+      # - name: Tag Docker image
+      #   run: docker tag my-image:${{ github.sha }} my-image:latest
 
       - name: Save Docker image as tar archive
         run: docker save -o my-image.tar my-image:${{ github.sha }}
