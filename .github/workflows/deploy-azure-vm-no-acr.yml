@@ -22,28 +22,12 @@ jobs:
           source: .
           target: ./myApp
 
+  deploy:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
 
-      # - name: Tag Docker image
-      #   run: docker tag my-image:${{ github.sha }} my-image:latest
-
-      # - name: Save Docker image as tar archive
-      #   run: docker save -o my-image.tar my-image:${{ github.sha }}
-
-      # - name: Load custom Docker image
-      #   run: docker load -i ./myApp/my-image.tar
-
-      # - name: Copy Docker image to Azure VM
-      #   uses: appleboy/scp-action@v0.1.4
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USERNAME }}
-      #     password: ${{ secrets.PASSWORD }}
-      #     port: ${{ secrets.PORT }}
-      #     command_timeout: 2m
-      #     source: my-image.tar
-      #     target: ./myApp/my-image.tar
-
-      # - name: Deploy execute command ssh to remote server & Load Docker image on Azure VM
+      # - name: Deploy execute command ssh to remote server
       #   env:
       #      IMAGE_NAME: my-image:${{ github.sha }}
       #   uses: appleboy/ssh-action@master
@@ -51,13 +35,10 @@ jobs:
       #    host: ${{ secrets.HOST }}
       #    username: ${{ secrets.USERNAME }}
       #    password: ${{ secrets.PASSWORD }}
-      #    run: |
-      #     ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker load -i ./myApp/my-image.tar'
-  deploy:
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
-
+      #    script: |
+      #         docker build -f ./myApp/Dockerfile -t my-image:${{ github.sha }} .
+      #         docker run -d -p 80:80 my-image:${{ github.sha }}
+      #         docker ps -a
       - name: Deploy execute command ssh to remote server
         env:
            IMAGE_NAME: my-image:${{ github.sha }}
@@ -67,6 +48,6 @@ jobs:
          username: ${{ secrets.USERNAME }}
          password: ${{ secrets.PASSWORD }}
          script: |
-              docker build -f ./myApp/Dockerfile -t my-image:${{ github.sha }} .
-              docker run -d -p 80:80 my-image:${{ github.sha }}
+              docker-compose down
+              docker-compose up -d -- build
               docker ps -a
